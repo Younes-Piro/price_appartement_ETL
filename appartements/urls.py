@@ -7,6 +7,6 @@ from .ETL.load import load
 urlpatterns = [
     #path('', scrap)
     #path('',clean)
-    path('',load)
+    #path('',load)
 
 ]
