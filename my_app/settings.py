@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'appartements',
     'graphene_django',
+    'django_elasticsearch_dsl'
 ]
 
 MIDDLEWARE = [
@@ -79,6 +80,12 @@ DATABASES = {
             'ENGINE': 'djongo',
             'NAME': 'housy', 
         }
+}
+
+ELASTICSEARCH_DSL={
+    'default': {
+        'hosts': 'localhost:9200'
+    },
 }
 
 
