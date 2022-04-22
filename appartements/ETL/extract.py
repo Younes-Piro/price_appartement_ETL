@@ -15,9 +15,9 @@ def scrap(*args):
     concierges = []
     text = ""
 
-    cities = ['rabat','marrakech','agadir','casablanca','f%C3%A8s']
+    cities = ['rabat','marrakech','agadir','casablanca','f%C3%A8s','tanger']
     for city in cities:
-        for i in range(0,20):
+        for i in range(0,40):
             #url
             page = f'https://www.mubawab.ma/fr/ct/{city}/immobilier-a-vendre:p:{i}'
 
