@@ -77,6 +77,17 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-cors-headers"
+version = "3.11.0"
+description = "django-cors-headers is a Django application for handling the server headers required for Cross-Origin Resource Sharing (CORS)."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+Django = ">=2.2"
+
+[[package]]
 name = "django-elasticsearch-dsl"
 version = "7.2.1"
 description = "Wrapper around elasticsearch-dsl-py for django models"
@@ -421,7 +432,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "de11b5889927f905f16b2f638c1983722ca4b02fafd3329d6193625585acb31b"
+content-hash = "39d6567c679a0e487ec158fcf7d99d69803b5689a224afe4fccdefae3fa96ab3"
 
 [metadata.files]
 aniso8601 = [
@@ -451,6 +462,10 @@ dataclasses = [
 django = [
     {file = "Django-3.2.13-py3-none-any.whl", hash = "sha256:b896ca61edc079eb6bbaa15cf6071eb69d6aac08cce5211583cfb41515644fdf"},
     {file = "Django-3.2.13.tar.gz", hash = "sha256:6d93497a0a9bf6ba0e0b1a29cccdc40efbfc76297255b1309b3a884a688ec4b6"},
+]
+django-cors-headers = [
+    {file = "django-cors-headers-3.11.0.tar.gz", hash = "sha256:eb98389bf7a2afc5d374806af4a9149697e3a6955b5a2dc2bf049f7d33647456"},
+    {file = "django_cors_headers-3.11.0-py3-none-any.whl", hash = "sha256:a22be2befd4069c4fc174f11cf067351df5c061a3a5f94a01650b4e928b0372b"},
 ]
 django-elasticsearch-dsl = [
     {file = "django-elasticsearch-dsl-7.2.1.tar.gz", hash = "sha256:265812e22538899333ebb8622c2b9d053eb4e1e44b24c09730da67c90103a6b3"},
