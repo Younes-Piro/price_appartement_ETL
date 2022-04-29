@@ -6,11 +6,21 @@ from .mutation import AppartementsType
 
 class Query(graphene.ObjectType):
 
-    all_appartements = graphene.List(AppartementsType)
+    all_appartements = graphene.List(
+        AppartementsType,
+        first=graphene.Int(),
+        skip=graphene.Int())
     single_appartement = graphene.Field(AppartementsType, id=graphene.Int()) #getting a single book my id
 
-    def resolve_all_appartements(root, info):
-        return Appartement.objects.all()
+    def resolve_all_appartements(root, info, first=None, skip=None, **kwargs):
+        appartements = Appartement.objects.all()
+        if skip:
+            appartements = appartements[skip:]
+
+        if first:
+            appartements = appartements[:first]
+
+        return appartements
         
     def resolve_single_appartement(root, info, id):
         return Appartement.objects.get(pk=id)
