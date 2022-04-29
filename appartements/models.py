@@ -11,7 +11,7 @@ class Appartement(models.Model):
     nmbr_of_rooms = models.IntegerField()
     Nmbr_of_pieces = models.IntegerField()
     Nmbr_of_bathrooms = models.IntegerField()
-    condition = models.CharField(max_length=100)
+    type = models.CharField(max_length=100)
     surface = models.IntegerField(default=0)
     price = models.IntegerField()
 

@@ -7,16 +7,17 @@ def clean(*args):
     url = "./appartements/DataSets/house.csv"
     df = pd.read_csv(url,index_col=[0])
     
-    ##droping nan values
-    df = df.dropna()
+    ##droping nan values in title location and description
+    df.dropna(subset = ['Title', 'Location', 'Description'], inplace = True)
     df.reset_index(drop=True, inplace=True)
 
-    # spliting data
+    #geting the city from each location by getting the last element of the list
     def get_city(data):
         return data.replace('\n', '').replace('\t', '').split(' ')[-1]
 
     df['City'] = df['Location'].apply(lambda x : get_city(x))
 
+    #reformating the city by deleting à in the beginning of each city
     def format_city(data):
         if data[0] == 'à':
             return data[1:]
@@ -24,122 +25,99 @@ def clean(*args):
             return data
     df['City'] = df['City'].apply(lambda x : format_city(x))
 
-    def get_location(data):
-        if len(data.split(' '))>1:
-            return data.split(' ')[0:2]
-        else: 
-            return data
+    ## getting every location exactling without the City
+    df["Location"] = df["Location"].apply(lambda x : x.split('à')[0])
 
-    df["Location"] = df["Location"].apply(lambda x : get_location(x))
-
-    def exact_location(data):
-        cities = ['Rabat','Marrakech','Agadir','Casablanca','F%C3%A8s']
-        for city in cities :
-            if(data[1] == f"à\n\t\t\t\t{city}" or data[1] == '1'):
-                return data[0]
-            else:
-                return f"{data[0]} {data[1]}"
-    df["Location"] = df["Location"].apply(lambda x : exact_location(x))
 
     ###### dealing with price
 
-    df["Price"] = df["Price"].apply(lambda x : x.replace(u'\xa0', u''))
+    #replacing spaces
+    def replice_price(data):
+        if isinstance(data, str):
+            return data.replace(u'\xa0', u'').replace(u'E', u'')
+        else:
+            return data
+
+    df["Price"] = df["Price"].apply(lambda x : replice_price(x))
+
+    ##geting the currency
     df["Currency"] = df["Price"].str[-2:]
     df["Price"] = df["Price"].str[:-2]
-    df["Price"] = df["Price"].apply(lambda x : x.replace(u'E', u''))
-    df["Price"] = df["Price"].astype(int)
 
     ###### dealing with description
 
     data = df.copy()
 
+    # slicing data to list of features
+
     def sliting(data):
         return data.split('//')
 
     data["Description"] = data["Description"].apply(lambda x : sliting(x))
-    data['Length'] = data['Description'].str.len()
-    data = data.loc[data['Length'] > 3]
 
-    def nmbr_bathroom(data):
-        if len(data.split(' '))>1:
-            if (data.split(' ')[1]) == "Chambre" or (data.split(' ')[1]) == "Chambres":
-                return data
+    #filtering every piece bathroom ..
+    def get_data(data,filtre1,filtre2):
+        for item in data:
+            if filtre1 in item or filtre2 in item:
+                return item
             else:
-                return None
-        else:
-            return None
-            
-    data["Nmbr of rooms"] = data["Description"].apply(lambda x : nmbr_bathroom(x[2]))
+                pass
 
-    def nmbr_bathroom(data):
-        if len(data.split(' '))>1:
-            if (data.split(' ')[1]) == "Pièce" or (data.split(' ')[1]) == "Pièces":
-                return data
-            else:
-                return None
-        else:
-            return None
-            
-    data["Nmbr of pieces"] = data["Description"].apply(lambda x : nmbr_bathroom(x[1]))
+    data["Nmbr_rooms"] = data["Description"].apply(lambda x : get_data(x,'Chambres','Chambre'))
+    data["Nmbr_pieces"] = data["Description"].apply(lambda x : get_data(x,'Pièce','Pièces'))
+    data["Nmbr_bathrooms"] = data["Description"].apply(lambda x : get_data(x,'Salle','Salles'))
 
-    def nmbr_bathroom(data):
-        if len(data.split(' '))>1:
-            if (data.split(' ')[1]) == "Salle" or (data.split(' ')[1]) == "Salles":
-                return data
+    #addind third filter for types
+    def get_type(data,filtre1,filtre2,filtre3):
+        for item in data:
+            if filtre1 in item or filtre2 in item or filtre3 in item:
+                return item
             else:
-                return None
-        else:
-            return None
-            
-    data["Nmbr of bathrooms"] = data["Description"].apply(lambda x : nmbr_bathroom(x[3]))
+                pass
 
-    def check_newness(data1, data2):
-        if len(data1.split(' '))>1:
-            if (data1.split(' ')[1]) == "Salle" or (data1.split(' ')[1]) == "Salles":
-                if data2 not in ["Nouveau","Bon état","À rénover"]:
-                    return None
-                else:
-                    return data2
-            else:
-                if data1 not in ["Nouveau","Bon état","À rénover"]:
-                    return None
-                else:
-                    return data1
-        else:
-            if data1 not in ["Nouveau","Bon état","À rénover"]:
-                return None
-            else:
-                return data1
-    data["Newness"] = data["Description"].apply(lambda x : check_newness(x[3],x[4]))
+    data["Type"] = data["Description"].apply(lambda x : get_type(x,'Nouveau','Bon état',"À rénover"))            
 
-    data["Surface"] = data["Description"].apply(lambda x: x[0])
+
+    #getting the surface of every appartement
     def get_surface(data):
-        return data.replace('\n', '').replace('\t', '')
-    data["Surface"] = data["Surface"].apply(lambda x: get_surface(x))
-    data["Surface"] = data["Surface"].str[:-2]
+        for item in data:
+            if 'm²' in item:
+                return item
+            else:
+                pass
+        
+    data["Surface"] = data["Description"].apply(lambda x: get_surface(x))
 
+    # replacing spaces
+    def get_surface(data):
+        if data == None:
+            return np.nan
+        else:
+            return data.replace('\n', '').replace('\t', '')
+
+    data["Surface"] = data["Surface"].apply(lambda x: get_surface(x))
+
+    data["Surface"] = data["Surface"].astype(str)
+    data["Surface"] = data["Surface"].apply(lambda x : None if (x == None) else x[:-2] )
+
+    #geting exaclty the numbers from every feature
     def get_nmbr(data):
         if data == None:
             return None
         else:
             return data.split(' ')[0]
 
-    data["Nmbr of rooms"] = data["Nmbr of rooms"].apply(lambda x: get_nmbr(x))
-    data["Nmbr of pieces"] = data["Nmbr of pieces"].apply(lambda x: get_nmbr(x))
-    data["Nmbr of bathrooms"] = data["Nmbr of bathrooms"].apply(lambda x: get_nmbr(x))
-    data.drop('Description', inplace=True, axis=1)
-    data.drop('Length', inplace=True, axis=1)
-    data = data.dropna()
-    data.reset_index(drop=True, inplace=True)
+    data["Nmbr_rooms"] = data["Nmbr_rooms"].apply(lambda x: get_nmbr(x))
+    data["Nmbr_bathrooms"] = data["Nmbr_bathrooms"].apply(lambda x: get_nmbr(x))
+    data["Nmbr_pieces"] = data["Nmbr_pieces"].apply(lambda x: get_nmbr(x))
 
-    data["Nmbr of rooms"] = data["Nmbr of rooms"].astype('int64')
-    data["Nmbr of pieces"] = data["Nmbr of pieces"].astype('int64')
-    data["Nmbr of bathrooms"] = data["Nmbr of bathrooms"].astype('int64')
+    #droping column of description
+    data.drop('Description', inplace=True, axis=1)
+    data.reset_index(drop=True, inplace=True) ## reseting indexes
 
     data.to_csv("./appartements/DataSets/clean_house.csv")
     response = HttpResponse()
     response.headers['Status'] = 200
     return response
-
 
 #clean()

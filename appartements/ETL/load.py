@@ -30,7 +30,7 @@ def load(*args):
                 nmbr_of_rooms=row[9],
                 Nmbr_of_pieces=row[10],
                 Nmbr_of_bathrooms=row[11],
-                condition=row[12],
+                type=row[12],
                 surface=row[13],
                 price=row[6]
             )
@@ -40,4 +40,4 @@ def load(*args):
     response.headers['Status'] = 200
     return response
 
-#load()
+load()
