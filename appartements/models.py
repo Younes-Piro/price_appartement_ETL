@@ -13,7 +13,7 @@ class Appartement(models.Model):
     Nmbr_of_bathrooms = models.IntegerField()
     type = models.CharField(max_length=100)
     surface = models.IntegerField(default=0)
-    price = models.IntegerField()
+    price = models.FloatField()
 
     def __str__(self):
         return self.title

@@ -97,9 +97,6 @@ def clean(*args):
 
     data["Surface"] = data["Surface"].apply(lambda x: get_surface(x))
 
-    data["Surface"] = data["Surface"].astype(str)
-    data["Surface"] = data["Surface"].apply(lambda x : None if (x == None) else x[:-2] )
-
     #geting exaclty the numbers from every feature
     def get_nmbr(data):
         if data == None:
@@ -115,7 +112,35 @@ def clean(*args):
     data.drop('Description', inplace=True, axis=1)
     data.reset_index(drop=True, inplace=True) ## reseting indexes
 
-    data.to_csv("./appartements/DataSets/clean_house.csv")
+    ## fill the null values with mode in discret variables
+    data['Nmbr_rooms'] = data['Nmbr_rooms'].fillna(data['Nmbr_rooms'].mode()[0])
+    data['Nmbr_pieces'] = data['Nmbr_pieces'].fillna(data['Nmbr_pieces'].mode()[0])
+    data['Nmbr_bathrooms'] = data['Nmbr_bathrooms'].fillna(data['Nmbr_bathrooms'].mode()[0])
+    data['Type'] = data['Type'].fillna(data['Type'].mode()[0])
+    data['Surface'] = data['Surface'].fillna(data['Surface'].mode()[0])
+
+    #formating variables
+    data['Nmbr_rooms'] = data['Nmbr_rooms'].astype(int)
+    data['Nmbr_pieces'] = data['Nmbr_pieces'].astype(int)
+    data['Nmbr_bathrooms'] = data['Nmbr_bathrooms'].astype(int)
+
+
+    data["Surface"] = data["Surface"].astype(str)
+    data["Surface"] = data["Surface"].apply(lambda x : None if (x == None) else x[:-2]) 
+    data['Surface'] = data['Surface'].astype(int)
+
+    df2 = data.loc[~df['Title'].str.contains('Villa', 'villa')]
+    df2["Price"] = df2["Price"].astype('float') 
+
+    #Price*Surface (foreach price < 15K)
+
+    df2.loc[df2['Price'] < 150000 , ['Price']] = df2['Price']*df2['Surface']
+
+    df2.loc[df2['Currency'] == 'UR' , ['Price']] = df2['Price']*10
+    df2.loc[df2['Currency'] == 'UR' , ['Currency']] = 'DH'
+
+    df2.to_csv("./appartements/DataSets/clean_house.csv")
+    
     response = HttpResponse()
     response.headers['Status'] = 200
     return response
