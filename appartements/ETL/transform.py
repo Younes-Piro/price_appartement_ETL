@@ -129,8 +129,9 @@ def clean(*args):
     data["Surface"] = data["Surface"].apply(lambda x : None if (x == None) else x[:-2]) 
     data['Surface'] = data['Surface'].astype(int)
 
+    data["Price"] = data["Price"].astype('float') 
     df2 = data.loc[~df['Title'].str.contains('Villa', 'villa')]
-    df2["Price"] = df2["Price"].astype('float') 
+    df2 = df2.dropna()
 
     #Price*Surface (foreach price < 15K)
 
@@ -138,7 +139,6 @@ def clean(*args):
 
     df2.loc[df2['Currency'] == 'UR' , ['Price']] = df2['Price']*10
     df2.loc[df2['Currency'] == 'UR' , ['Currency']] = 'DH'
-
     df2.to_csv("./appartements/DataSets/clean_house.csv")
     
     response = HttpResponse()

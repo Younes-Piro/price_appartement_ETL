@@ -40,4 +40,4 @@ def load(*args):
     response.headers['Status'] = 200
     return response
 
-load()
+#load()

@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 urlpatterns = [
     path("graphql", csrf_exempt(GraphQLView.as_view(graphiql=True, schema=schema))),
     #path('', scrap)
-    #path('',clean)
-    #path('',load)
+    path('',clean),
+    path('',load)
 
 ]

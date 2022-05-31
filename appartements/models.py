@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.functions import Coalesce
+from django.db.models import Sum
 
 class Appartement(models.Model):
     title = models.CharField(max_length=200)
@@ -17,4 +19,23 @@ class Appartement(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class AuthorManager(models.Manager):
+    def get_queryset(self):
+        return AuthorQuerySet(self.model, using=self._db)
+
+    def annotate_with_copies_sold(self):
+        return self.get_queryset().annotate_with_copies_sold()
+
+
+class AuthorQuerySet(models.QuerySet):
+    def annotate_with_copies_sold(self):
+        return self.annotate(copies_sold=Sum('price'))
+
+
+
+
+
+
 

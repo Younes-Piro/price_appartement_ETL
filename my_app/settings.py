@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     'appartements',
     'graphene_django',
     'django_elasticsearch_dsl',
-    'corsheaders'
+    'corsheaders',
+    'django',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
