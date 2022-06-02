@@ -11,7 +11,7 @@ class AppartementsType(DjangoObjectType): #serialisation the data from our model
 # Our inner dictionary defined as an object
 class InnerItem(graphene.ObjectType):
     txt1 = graphene.Float()
-    txt2 = graphene.String()
+    txt2 = graphene.Float()
 
 # Our outer dictionary as an object
 class Dictionary(graphene.ObjectType):
