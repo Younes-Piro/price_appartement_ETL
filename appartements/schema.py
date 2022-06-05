@@ -14,6 +14,7 @@ class Query(graphene.ObjectType):
     single_appartement = graphene.List(AppartementsType)
     cards = graphene.List(Dictionary)
     details_grouping = graphene.List(Dictionary)
+    number_rooms_count = graphene.List(Dictionary)
 
     # details of pricing
 
@@ -54,6 +55,31 @@ class Query(graphene.ObjectType):
                 value['avg_rooms'], value['avg_surface'])
             dictionary = Dictionary(key, inner_item)
             results.append(dictionary)
+
+        return results
+
+    # number of rooms count
+    def resolve_number_rooms_count(self, info):
+        diction = Appartement.objects.values('nmbr_of_rooms').annotate(
+            count_rooms=Count('nmbr_of_rooms'),
+        ).order_by('count_rooms')[18:25]
+
+        all_number_rooms = Appartement.objects.aggregate(
+            count_total_rooms=Count('nmbr_of_rooms'))
+        print('******************')
+        print(all_number_rooms.get("count_total_rooms"))
+
+        Dict = {}
+        for single_dic in diction:
+            Dict[single_dic.get('nmbr_of_rooms')] = single_dic
+
+        results = []        # Create a list of Dictionary objects to return
+        for key, value in Dict.items():
+            inner_item = InnerItem(value['count_rooms'])
+            dictionary = Dictionary(key, inner_item)
+            results.append(dictionary)
+
+        print(diction)
 
         return results
 
