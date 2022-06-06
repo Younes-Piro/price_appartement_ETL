@@ -15,6 +15,8 @@ class Query(graphene.ObjectType):
     cards = graphene.List(Dictionary)
     details_grouping = graphene.List(Dictionary)
     number_rooms_count = graphene.List(Dictionary)
+    surface_distribution = graphene.List(Dictionary)
+    every_city_num_rooms = graphene.List(Dictionary, city=graphene.String())
 
     # details of pricing
 
@@ -62,7 +64,7 @@ class Query(graphene.ObjectType):
     def resolve_number_rooms_count(self, info):
         diction = Appartement.objects.values('nmbr_of_rooms').annotate(
             count_rooms=Count('nmbr_of_rooms'),
-        ).order_by('count_rooms')[18:25]
+        ).order_by('-count_rooms')[:5]
 
         all_number_rooms = Appartement.objects.aggregate(
             count_total_rooms=Count('nmbr_of_rooms'))
@@ -83,11 +85,53 @@ class Query(graphene.ObjectType):
 
         return results
 
+    def resolve_surface_distribution(self, info, **kwargs):
+        diction = Appartement.objects.values('surface').annotate(
+            count_surface=Count('surface'),
+        ).order_by('-count_surface')[:10]
+
+        Dict = {}
+        for single_dic in diction:
+            Dict[single_dic.get('surface')] = single_dic
+
+        results = []        # Create a list of Dictionary objects to return
+        for key, value in Dict.items():
+            inner_item = InnerItem(value['count_surface'])
+            dictionary = Dictionary(key, inner_item)
+            results.append(dictionary)
+
+        print(diction)
+        return results
+
     def resolve_single_appartement(self, info, **kwargs):
         return Appartement.objects.total_price().first()
 
     def resolve_all_appartements(self, info, **kwargs):
         return Appartement.objects.all()
+
+    def resolve_every_city_num_rooms(root, info, city):
+        diction = Appartement.objects.values('nmbr_of_rooms').filter(city=city).annotate(
+            count_rooms=Count('nmbr_of_rooms'),
+        ).order_by('-count_rooms')[:5]
+
+        all_number_rooms = Appartement.objects.aggregate(
+            count_total_rooms=Count('nmbr_of_rooms'))
+        print('******************')
+        print(all_number_rooms.get("count_total_rooms"))
+
+        Dict = {}
+        for single_dic in diction:
+            Dict[single_dic.get('nmbr_of_rooms')] = single_dic
+
+        results = []        # Create a list of Dictionary objects to return
+        for key, value in Dict.items():
+            inner_item = InnerItem(value['count_rooms'])
+            dictionary = Dictionary(key, inner_item)
+            results.append(dictionary)
+
+        print(diction)
+
+        return results
 
 
 # importing the schema
